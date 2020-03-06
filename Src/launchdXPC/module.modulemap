@@ -1,0 +1,5 @@
+module LaunchdXPC [system] {
+    header "launchdXPC.h"
+    export *
+}
+
