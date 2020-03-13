@@ -16,7 +16,7 @@ class ArgManager {
     var standardMode = false
     var treeMode = true
     var toFile: String?
-    let availableArgs = ["--nocolor", "--notree", "--timestamps", "-o", "--standard"]
+    let availableArgs = ["--nocolor", "--notree", "--timestamps", "-o", "--standard", "--version"]
     
     init(suppliedArgs: [String]) {
         setArgs(suppliedArgs)
@@ -36,6 +36,9 @@ class ArgManager {
                 standardMode.toggle()
             } else if arg == "--notree" {
                 treeMode.toggle()
+            } else if arg == "--version" {
+                print(version)
+                exit(1)
             } else if arg == "-o" {
                 if args.count > x+1 && !availableArgs.contains(args[x+1]) {
                     toFile = args[x+1]
@@ -54,6 +57,7 @@ class ArgManager {
         print("--notree  -> Do not print tree format. Just print in list format")
         print("--timestamps -> Include process timestamps")
         print("--standard -> Print the standard Unix tree instead of TrueTree")
+        print("--version -> Print the TrueTree version number")
         print("-o <filename> -> output to file")
         exit(1)
     }

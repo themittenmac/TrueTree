@@ -16,10 +16,7 @@ let MaxPathLen = Int(4 * MAXPATHLEN)
 let InfoSize = Int32(MemoryLayout<proc_bsdinfo>.stride)
 
 
-func getPPID(_ pidOfInterest:Int) -> UInt32? {
-    let pidInfo = UnsafeMutablePointer<proc_bsdinfo>.allocate(capacity: 1)
-    defer { pidInfo.deallocate() }
-    
+func getPPID(_ pidOfInterest:Int, pidInfo:UnsafeMutablePointer<proc_bsdinfo>) -> UInt32? {
     // Call proc_pidinfo and return nil on error
     guard InfoSize == proc_pidinfo(Int32(pidOfInterest), PROC_PIDTBSDINFO, 0, pidInfo, InfoSize) else { return nil }
     
@@ -27,10 +24,7 @@ func getPPID(_ pidOfInterest:Int) -> UInt32? {
 }
 
 
-func getTimestamp(_ pidOfInterest:Int) -> Date {
-    let pidInfo = UnsafeMutablePointer<proc_bsdinfo>.allocate(capacity: 1)
-    defer { pidInfo.deallocate() }
-    
+func getTimestamp(_ pidOfInterest:Int, pidInfo:UnsafeMutablePointer<proc_bsdinfo>) -> Date {
     // Call proc_pidinfo and return nil on error
     guard InfoSize == proc_pidinfo(Int32(pidOfInterest), PROC_PIDTBSDINFO, 0, pidInfo, InfoSize) else { return Date() }
     let ts = Date(timeIntervalSince1970: TimeInterval(pidInfo.pointee.pbi_start_tvsec))

@@ -198,14 +198,17 @@ func createNodeDictionary() -> [Int:Node<Any>] {
         }
 
         // Create the tree node
-        guard let ppid = getPPID(pid) else {
+        let p = UnsafeMutablePointer<proc_bsdinfo>.allocate(capacity: 1)
+        guard let ppid = getPPID(pid, pidInfo: p) else {
             print("Issue collecting pid information for \(pid). Skipping...")
             continue
         }
         
         let responsiblePid = getResponsiblePid(pid)
         let path = getPidPath(pid)
-        let ts = getTimestamp(pid)
+        let ts = getTimestamp(pid, pidInfo: p)
+        
+        defer { p.deallocate() }
         
         let node = Node<Any>(pid as Any, ppid:ppid, procPath:path, responsiblePid: responsiblePid, timestamp: ts)
 
