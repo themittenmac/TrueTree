@@ -9,10 +9,12 @@ TrueTree is more than just a pstree command for macOS. It is used to display a p
 
 
 **./TrueTree -h** \
---nocolor -> Do not color code items in output  
---notree  -> Do not print tree format. Just print in list format  
---timestamps -> Include process timestamps  
---standard -> Print the standard Unix tree instead of TrueTree  
+--nocolor -> Do not color code items in output
+--notree  -> Do not print tree format. Just print in list format
+--timestamps -> Include process timestamps
+--standard -> Print the standard Unix tree instead of TrueTree
+--sources -> Print the source of where each processes parent came from
+--version -> Print the TrueTree version number
 -o <filename> -> output to file
 
 <span style="color:blue">Note: Requires Root</span>

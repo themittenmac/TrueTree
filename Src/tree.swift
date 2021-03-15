@@ -23,7 +23,9 @@ class Node<T> {
     var submittedByPid: Int?
     var submittedByName: String?
     var launchdProgramPath: String?
+    var lsmpPid: Int?
     var children: [Node] = []
+    var source: String?
     
     init(_ pid: T, ppid: UInt32, procPath: String, responsiblePid: CInt, timestamp: Date) {
         self.pid = pid
@@ -48,13 +50,24 @@ class Node<T> {
                 if argManager.timestamps {
                     val += "   \u{001B}[0;36m\(self.timestamp)\u{001B}[0;0m"
                 }
+                
+                if argManager.sources {
+                    if let source = self.source {
+                        val += "   \u{001B}[0;35m\(source)\u{001B}[0;0m"
+                    }
+                }
             }
+            
         } else {
             if self.procPath.hasSuffix(".plist") || self.procPath.hasSuffix("Terminated)") {
                 val = self.procPath
             } else {
                 val = "\(self.procPath)   \(self.pid)"
                 val += "   \(self.timestamp)"
+                
+                if let source = self.source {
+                    val += "   \(source)"
+                }
             }
         }
         
@@ -123,7 +136,7 @@ func buildTrueTree(_ nodePidDict:[Int:Node<Any>]) -> Node<Any> {
         
         
         // This is another forensic artifact implying a possible exec occured on a responsible pid!
-        // If this occurs the a new parent should be created. That parent should have a parent of the TrueTree Model
+        // If this occurs then a new parent should be created. That parent should have a parent of the TrueTree Model
         // Current pid <- exec'ed pid <- trueTree Model Pid
         var execOldNode: Node<Any>?
         if let launchdProgramPath = node.launchdProgramPath {
@@ -141,26 +154,43 @@ func buildTrueTree(_ nodePidDict:[Int:Node<Any>]) -> Node<Any> {
         
         var trueParentPid:Int?
         var trueParentPlist:String?
+        var source: String?
         trueParentPlist = nil
         
         // Find the pid (or plist) we should use as the parent
         if let submittedByPid = node.submittedByPid {
-            if nodePidDict.keys.contains(submittedByPid){
-                trueParentPid = submittedByPid
+            if nodePidDict.keys.contains(submittedByPid) {
+                var runningboardTrueParent = submittedByPid
+                if nodePidDict[submittedByPid]?.procPath == "/usr/libexec/runningboardd" {
+                    if let lsmpPid = node.lsmpPid {
+                        runningboardTrueParent = lsmpPid
+                        source = "lsmp"
+                    }
+                }
+           
+                trueParentPid = runningboardTrueParent
+                
             } else {
                 if let submittedByName = node.submittedByName {
                     node.procPath += " (TrueParent:\(submittedByPid) \"\(submittedByName)\" has Terminated)"
                 }
                 trueParentPid = Int(node.ppid)
             }
-        }else if let submittedByPlist = node.submittedByPlist {
+
+        } else if let submittedByPlist = node.submittedByPlist {
             trueParentPlist = submittedByPlist
-        } else if node.responsiblePid != pid{
+            source = "submitted_by_plist"
+        } else if node.responsiblePid != pid {
             trueParentPid = Int(node.responsiblePid)
+            source = "responsible_pid"
         } else {
             trueParentPid = Int(node.ppid)
+            source = "parent_process_id"
         }
+
         
+        node.source = source
+            
 
         var parentNode: Node<Any>?
         // Grab the parent of this node and assign this node as a child to it
@@ -188,7 +218,10 @@ func buildTrueTree(_ nodePidDict:[Int:Node<Any>]) -> Node<Any> {
 
 
 func createNodeDictionary() -> [Int:Node<Any>] {
+    let majv = ProcessInfo().operatingSystemVersion.majorVersion
     var nodePidDict = [Int:Node<Any>]()
+    
+    let lsmpData = getLsmpData()
     
     // Go through each pid and create an initial tree node for it with all of the pid info we can find
     for pid in getActivePids() {
@@ -217,6 +250,13 @@ func createNodeDictionary() -> [Int:Node<Any>] {
             node.submittedByName =  getSubmittedByName(pid, launchdXPCInfo)
             node.submittedByPlist = getPlistPath(pid, launchdXPCInfo)
             node.launchdProgramPath = getLaunchdProgramPath(pid, launchdXPCInfo)
+        }
+        
+        // TrueTree must run differently on Big Sur and later due to the runningboardd service
+        if majv >= 11 {
+            if let lsmpResponsiblePid = getLsmpPid(_pidOfInterest: pid, lsmpData: lsmpData) {
+                node.lsmpPid = lsmpResponsiblePid
+            }
         }
         
         nodePidDict[pid] = node

@@ -14,9 +14,10 @@ class ArgManager {
     var color = true
     var timestamps = false
     var standardMode = false
+    var sources = false
     var treeMode = true
     var toFile: String?
-    let availableArgs = ["--nocolor", "--notree", "--timestamps", "-o", "--standard", "--version"]
+    let availableArgs = ["--nocolor", "--notree", "--timestamps", "-o", "--standard", "--version", "--sources"]
     
     init(suppliedArgs: [String]) {
         setArgs(suppliedArgs)
@@ -34,6 +35,8 @@ class ArgManager {
                 timestamps.toggle()
             } else if arg == "--standard" {
                 standardMode.toggle()
+            } else if arg == "--sources" {
+                sources.toggle()
             } else if arg == "--notree" {
                 treeMode.toggle()
             } else if arg == "--version" {
@@ -57,6 +60,7 @@ class ArgManager {
         print("--notree  -> Do not print tree format. Just print in list format")
         print("--timestamps -> Include process timestamps")
         print("--standard -> Print the standard Unix tree instead of TrueTree")
+        print("--sources -> Print the source of where each processes parent came from")
         print("--version -> Print the TrueTree version number")
         print("-o <filename> -> output to file")
         exit(1)
