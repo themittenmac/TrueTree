@@ -14,10 +14,12 @@
 
 #import <Foundation/Foundation.h>
 
-//hit up launchd (via XPC) to get process info
-NSDictionary* getProcessInfo(unsigned long pid);
+int getSubmittedPid(int pid);
 
-//launchd structs/funtions
+//hit up launchd (via XPC) to get process info
+NSString* getSubmittedByPlist(unsigned long pid);
+
+//launchd structs/functions
 // inspired by: http://newosxbook.com/articles/jlaunchctl.html
 struct xpc_global_data {
     
@@ -40,6 +42,6 @@ typedef struct _xpc_pipe_s* xpc_pipe_t;
 
 __attribute__((weak_import))
 int xpc_pipe_routine(xpc_pipe_t pipe, xpc_object_t message, xpc_object_t *reply);
-
+int xpc_pipe_interface_routine(xpc_pipe_t pipe, int request, xpc_object_t message, xpc_object_t *reply, int unknown);
 
 #endif

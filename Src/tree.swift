@@ -21,9 +21,7 @@ class Node<T> {
     var timestamp: Date
     var submittedByPlist: String?
     var submittedByPid: Int?
-    var submittedByName: String?
     var launchdProgramPath: String?
-    var lsmpPid: Int?
     var children: [Node] = []
     var source: String?
     
@@ -53,7 +51,7 @@ class Node<T> {
                 
                 if argManager.sources {
                     if let source = self.source {
-                        val += "   \u{001B}[0;35m\(source)\u{001B}[0;0m"
+                        val += "   \u{001B}[0;31m\(source)\u{001B}[0;0m"
                     }
                 }
             }
@@ -134,64 +132,36 @@ func buildTrueTree(_ nodePidDict:[Int:Node<Any>]) -> Node<Any> {
             }
         }
         
-        
-        // This is another forensic artifact implying a possible exec occured on a responsible pid!
-        // If this occurs then a new parent should be created. That parent should have a parent of the TrueTree Model
-        // Current pid <- exec'ed pid <- trueTree Model Pid
-        var execOldNode: Node<Any>?
-        if let launchdProgramPath = node.launchdProgramPath {
-            // an exec'ed parent is really only interesting if the file names are different. Otherwise it was likely just a framework exec
-            let fileName1 = (launchdProgramPath as NSString).lastPathComponent
-            let fileName2 = (node.procPath as NSString).lastPathComponent
-            if fileName1.caseInsensitiveCompare(fileName2) != .orderedSame {
-                let execOldProgramName = launchdProgramPath + " (Exec'ed into below process)"
-                let newNode = Node<Any>(node.pid, ppid:node.ppid, procPath: execOldProgramName, responsiblePid: node.responsiblePid, timestamp: node.timestamp)
-                
-                newNode.children.append(node)
-                execOldNode = newNode
-            }
-        }
-        
         var trueParentPid:Int?
         var trueParentPlist:String?
         var source: String?
         trueParentPlist = nil
         
         // Find the pid (or plist) we should use as the parent
-        if let submittedByPid = node.submittedByPid {
+        if let submittedByPlist = node.submittedByPlist {
+            trueParentPlist = submittedByPlist
+            source = "Aquired parent from -> launchd_xpc"
+        } else if let submittedByPid = node.submittedByPid {
             if nodePidDict.keys.contains(submittedByPid) {
-                var runningboardTrueParent = submittedByPid
-                if nodePidDict[submittedByPid]?.procPath == "/usr/libexec/runningboardd" {
-                    if let lsmpPid = node.lsmpPid {
-                        runningboardTrueParent = lsmpPid
-                        source = "lsmp"
-                    }
-                }
-           
-                trueParentPid = runningboardTrueParent
-                
+                trueParentPid = submittedByPid
+                source = "Aquired parent from -> Application_Services"
             } else {
-                if let submittedByName = node.submittedByName {
-                    node.procPath += " (TrueParent:\(submittedByPid) \"\(submittedByName)\" has Terminated)"
-                }
                 trueParentPid = Int(node.ppid)
             }
 
         } else if let submittedByPlist = node.submittedByPlist {
             trueParentPlist = submittedByPlist
-            source = "submitted_by_plist"
+            source = "Aquired parent from -> submitted_by_plist"
         } else if node.responsiblePid != pid {
             trueParentPid = Int(node.responsiblePid)
-            source = "responsible_pid"
+            source = "Aquired parent from -> responsible_pid"
         } else {
             trueParentPid = Int(node.ppid)
-            source = "parent_process_id"
+            source = "Aquired parent from -> parent_process_id"
         }
-
         
         node.source = source
             
-
         var parentNode: Node<Any>?
         // Grab the parent of this node and assign this node as a child to it
         if let trueParentPid = trueParentPid {
@@ -200,13 +170,7 @@ func buildTrueTree(_ nodePidDict:[Int:Node<Any>]) -> Node<Any> {
             parentNode = nodePlistDict[trueParentPlist]
         }
         
-        // If this process was exec'ed we need assign the ppid to the launchdProgramPath
-        // and then assign the ppid of the current pid to the launchdProgramPath
-        if let execOldNode = execOldNode {
-            parentNode?.children.append(execOldNode)
-        } else {
-            parentNode?.children.append(node)
-        }
+        parentNode?.children.append(node)
     }
     
     guard let rootNode = nodePidDict[1] else {
@@ -218,10 +182,7 @@ func buildTrueTree(_ nodePidDict:[Int:Node<Any>]) -> Node<Any> {
 
 
 func createNodeDictionary() -> [Int:Node<Any>] {
-    let majv = ProcessInfo().operatingSystemVersion.majorVersion
     var nodePidDict = [Int:Node<Any>]()
-    
-    let lsmpData = getLsmpData()
     
     // Go through each pid and create an initial tree node for it with all of the pid info we can find
     for pid in getActivePids() {
@@ -229,7 +190,7 @@ func createNodeDictionary() -> [Int:Node<Any>] {
         if pid == 0 {
            continue
         }
-
+        
         // Create the tree node
         let p = UnsafeMutablePointer<proc_bsdinfo>.allocate(capacity: 1)
         guard let ppid = getPPID(pid, pidInfo: p) else {
@@ -244,18 +205,15 @@ func createNodeDictionary() -> [Int:Node<Any>] {
         defer { p.deallocate() }
         
         let node = Node<Any>(pid as Any, ppid:ppid, procPath:path, responsiblePid: responsiblePid, timestamp: ts)
-
-        if let launchdXPCInfo = getProcessInfo(UInt(pid)) {
-            node.submittedByPid = getSubmittedByPid(pid, launchdXPCInfo)
-            node.submittedByName =  getSubmittedByName(pid, launchdXPCInfo)
-            node.submittedByPlist = getPlistPath(pid, launchdXPCInfo)
-            node.launchdProgramPath = getLaunchdProgramPath(pid, launchdXPCInfo)
+        
+        let submitted = getSubmittedPid(Int32(pid))
+        if submitted != 0 {
+            node.submittedByPid = Int(submitted)
         }
         
-        // TrueTree must run differently on Big Sur and later due to the runningboardd service
-        if majv >= 11 {
-            if let lsmpResponsiblePid = getLsmpPid(_pidOfInterest: pid, lsmpData: lsmpData) {
-                node.lsmpPid = lsmpResponsiblePid
+        if let launchctlPlist = getSubmittedByPlist(UInt(pid)) {
+            if launchctlPlist.hasSuffix(".plist") {
+                node.submittedByPlist = launchctlPlist
             }
         }
         

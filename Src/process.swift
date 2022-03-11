@@ -9,24 +9,7 @@
 import Foundation
 import ProcLib
 import Darwin
-
-func extractPidFromParens(lsmpProcLine: String) -> String? {
-    var pid = [Character]()
-    var tracking = false
-    for char in lsmpProcLine {
-        
-        if char == "(" {
-            tracking = true
-        } else if char == ")"{
-            return String(pid)
-        } else if tracking == true {
-            pid.append(char)
-        }
-    
-    }
-    return String(pid)
-}
-
+import ApplicationServices
 
 typealias rpidFunc = @convention(c) (CInt) -> CInt
 let MaxPathLen = Int(4 * MAXPATHLEN)
@@ -84,28 +67,7 @@ func getResponsiblePid(_ pidOfInterest:Int) -> CInt {
     return responsiblePid
 }
 
-
-func getSubmittedByPid(_ pidOfInterest: Int, _ launchdXPCInfo: [AnyHashable : Any]) -> Int? {
-    var submittedPid: Int?
-    if let path = launchdXPCInfo["path"] as? String {
-        if (path.contains("submitted by")) {
-            var submittedNameTmp = ""
-            for x in path.split(separator: " ")[2...] {
-                submittedNameTmp += x + " "
-            }
-            let submittedName = String(submittedNameTmp.split(separator: ".").first!)
-            let submittedPidTmp = String(submittedNameTmp.split(separator: ".").last!.dropLast().dropLast())
-
-            if submittedPidTmp.count != 0 && submittedName.count > 0 {
-                submittedPid = Int(submittedPidTmp)
-           }
-       }
-   }
-    
-    return submittedPid
-}
-
-
+/* Old Code. No longer works on Big Sur+
 func getSubmittedByName(_ pidOfInterest: Int, _ launchdXPCInfo: [AnyHashable : Any]) -> String? {
     var submittedByName: String?
     if let path = launchdXPCInfo["path"] as? String {
@@ -118,10 +80,8 @@ func getSubmittedByName(_ pidOfInterest: Int, _ launchdXPCInfo: [AnyHashable : A
             submittedByName = String(submittedNameTmp.split(separator: ".").first!)
        }
    }
-    
     return submittedByName
 }
-
 
 func getLaunchdProgramPath(_ pidOfInterest: Int, _ launchdXPCInfo: [AnyHashable : Any]) -> String? {
     var plistPath: String?
@@ -131,93 +91,7 @@ func getLaunchdProgramPath(_ pidOfInterest: Int, _ launchdXPCInfo: [AnyHashable 
     
     return plistPath
 }
-
-
-func getPlistPath(_ pidOfInterest: Int, _ launchdXPCInfo: [AnyHashable : Any]) -> String? {
-    var plistPath: String?
-    
-    if let path = launchdXPCInfo["path"] as? String {
-        if (path.contains(".plist")) {
-            let responsiblePath = String(path.split(separator: "=").last!).trimmingCharacters(in: .whitespacesAndNewlines)
-            plistPath = responsiblePath
-        }
-    }
-
-    return plistPath
-}
-
-
-func getLsmpData() -> [Int: Int] {
-    /* Don't look here. It ain't pretty but it works!*/
-    var lsmpData = [Int:Int]()
-
-    let task = Process()
-    let pipe = Pipe()
-    
-    task.standardOutput = pipe
-    task.standardError = pipe
-    task.arguments = ["-c", "lsmp -a"]
-    task.launchPath = "/bin/zsh"
-    task.launch()
-    
-    let data = pipe.fileHandleForReading.readDataToEndOfFile()
-    let output = String(data: data, encoding: .utf8)!
-
-    let lines = output.components(separatedBy: "\n")
-    
-    var counter = 0
-    var procpid = String()
-    var lsmpParentPid = String()
-
-    for line in lines {
-        if line.starts(with: "Process (") {
-            
-            if let pid = extractPidFromParens(lsmpProcLine: line) {
-                procpid = pid
-            }
-        }
-
-        if line.hasSuffix("appleeventsd") && line.contains("---            1         <-") {
-            
-            let nextLine = lines[counter+1]
-            let previousLine = lines[counter-1]
-            
-            if nextLine.contains("D--            1         <-") {
-                if let pid = extractPidFromParens(lsmpProcLine: nextLine) {
-                    lsmpParentPid = pid
-                }
-                
-                let pid = Int(procpid)
-                let ppid = Int(lsmpParentPid)
-                
-                lsmpData[pid ?? 1] = ppid
-            
-            } else if previousLine.contains("D--            1         <-") {
-                
-                if let pid = extractPidFromParens(lsmpProcLine: previousLine) {
-                    lsmpParentPid = pid
-                }
-                
-                let pid = Int(procpid)
-                let ppid = Int(lsmpParentPid)
-                
-                lsmpData[pid ?? 1] = ppid
-            }
-        }
-        
-        counter += 1
-    }
-    
-    return lsmpData
-}
-
-func getLsmpPid(_pidOfInterest: Int, lsmpData: [Int:Int]) -> Int? {
-    if let lsmpParent = lsmpData[_pidOfInterest] {
-        return lsmpParent
-    } else {
-        return nil
-    }
-}
+ */
 
 func getActivePids() -> [Int] {
     // Inspired by https://gist.github.com/kainjow/0e7650cc797a52261e0f4ba851477c2f
