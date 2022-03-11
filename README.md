@@ -33,3 +33,7 @@ For tree output based on standard pids and ppids use --standard
 **./TrueTree --timestamps** \
 For output in either format with process create time added use the --timestamps option
 <p align="center"><img src="https://themittenmac.com/wp-content/uploads/2020/03/tt_timestamps.png"></p>
+
+**./TrueTree --sources** \
+To show where each parent pid was aquired from use the --sources option
+<p align="center"><img src="https://themittenmac.com/wp-content/uploads/2022/03/tt_sources.png"></p>
