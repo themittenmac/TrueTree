@@ -27,9 +27,9 @@ class ArgManager {
         for (x,arg) in (args).enumerated() {
             if x == 0 || !arg.starts(with: "-") {
                 continue
-            } else if arg == "-h" || arg == "-help" {
+            } else if arg == "-h" || arg == "--help" {
                 self.printHelp()
-            }else if arg == "--nocolor" {
+            } else if arg == "--nocolor" {
                 color.toggle()
             } else if arg == "--timestamps" {
                 timestamps.toggle()
@@ -56,13 +56,13 @@ class ArgManager {
     }
     
     func printHelp() {
-        print("--nocolor -> Do not color code items in output")
-        print("--notree  -> Do not print tree format. Just print in list format")
-        print("--timestamps -> Include process timestamps")
-        print("--standard -> Print the standard Unix tree instead of TrueTree")
-        print("--sources -> Print the source of where each processes parent came from")
-        print("--version -> Print the TrueTree version number")
-        print("-o <filename> -> output to file")
+        print("--nocolor        Do not color code items in output")
+        print("--notree         Do not print tree format. Just print in list format")
+        print("--timestamps     Include process timestamps")
+        print("--standard       Print the standard Unix tree instead of TrueTree")
+        print("--sources        Print the source of where each processes parent came from")
+        print("--version        Print the TrueTree version number")
+        print("-o <filename>    Output to file")
         exit(1)
     }
 }
