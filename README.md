@@ -13,7 +13,7 @@ Because of the ever changing features on macOS, since macOS 11 some features don
 
 **./TrueTree -h** \
 --nocolor -> Do not color code items in output
---notree  -> Do not print tree format. Just print in list format
+--timeline  -> Sort and print all processes by their creation timestamp
 --timestamps -> Include process timestamps
 --standard -> Print the standard Unix tree instead of TrueTree
 --sources -> Print the source of where each processes parent came from
@@ -24,19 +24,24 @@ Because of the ever changing features on macOS, since macOS 11 some features don
 
 **./TrueTree** \
 Displays an enhanced process tree using the TrueTree concept
-<p align="center"><img src="https://themittenmac.com/wp-content/uploads/2020/02/bigger_preview_photo.png"></p>
-
+<p align="center"><img src="https://themittenmac.com/wp-content/uploads/2022/12/truetree_output.png"></p>
 <br/><br/>
 
 **./TrueTree --standard** \
 For tree output based on standard pids and ppids use --standard
-<p align="center"><img src="https://themittenmac.com/wp-content/uploads/2020/03/tt_standard.png"></p>
+<p align="center"><img src="https://themittenmac.com/wp-content/uploads/2022/12/tt_standard.png"></p>
 <br/><br/>
 
 **./TrueTree --timestamps** \
 For output in either format with process create time added use the --timestamps option
-<p align="center"><img src="https://themittenmac.com/wp-content/uploads/2020/03/tt_timestamps.png"></p>
+<p align="center"><img src="https://themittenmac.com/wp-content/uploads/2022/12/tt_timestamps.png"></p>
+<br/><br/>
 
 **./TrueTree --sources** \
 To show where each parent pid was aquired from use the --sources option
-<p align="center"><img src="https://themittenmac.com/wp-content/uploads/2022/03/tt_sources.png"></p>
+<p align="center"><img src="https://themittenmac.com/wp-content/uploads/2022/12/tt_sources.png"></p>
+<br/><br/>
+
+**./TrueTree --timeline** \
+Does not collect a tree. Instead just prints processes sorted by creation time
+<p align="center"><img src="https://themittenmac.com/wp-content/uploads/2022/12/tt_timeline.png"></p>
