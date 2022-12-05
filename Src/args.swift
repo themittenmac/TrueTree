@@ -15,9 +15,9 @@ class ArgManager {
     var timestamps = false
     var standardMode = false
     var sources = false
-    var treeMode = true
+    var timelineMode = true
     var toFile: String?
-    let availableArgs = ["--nocolor", "--notree", "--timestamps", "-o", "--standard", "--version", "--sources"]
+    let availableArgs = ["--nocolor", "--timeline", "--timestamps", "-o", "--standard", "--version", "--sources"]
     
     init(suppliedArgs: [String]) {
         setArgs(suppliedArgs)
@@ -27,9 +27,9 @@ class ArgManager {
         for (x,arg) in (args).enumerated() {
             if x == 0 || !arg.starts(with: "-") {
                 continue
-            } else if arg == "-h" || arg == "-help" {
+            } else if arg == "-h" || arg == "--help" {
                 self.printHelp()
-            }else if arg == "--nocolor" {
+            } else if arg == "--nocolor" {
                 color.toggle()
             } else if arg == "--timestamps" {
                 timestamps.toggle()
@@ -37,8 +37,8 @@ class ArgManager {
                 standardMode.toggle()
             } else if arg == "--sources" {
                 sources.toggle()
-            } else if arg == "--notree" {
-                treeMode.toggle()
+            } else if arg == "--timeline" {
+                timelineMode.toggle()
             } else if arg == "--version" {
                 print(version)
                 exit(1)
@@ -57,7 +57,7 @@ class ArgManager {
     
     func printHelp() {
         print("--nocolor -> Do not color code items in output")
-        print("--notree  -> Do not print tree format. Just print in list format")
+        print("--timeline  -> Sort and print all processes by their creation timestamp (Non-Tree Mode)")
         print("--timestamps -> Include process timestamps")
         print("--standard -> Print the standard Unix tree instead of TrueTree")
         print("--sources -> Print the source of where each processes parent came from")
