@@ -18,7 +18,7 @@ class ArgManager {
     var timelineMode = true
     var network = true
     var toFile: String?
-    let availableArgs = ["--nocolor", "--timeline", "--timestamps", "-o", "--standard", "--version", "--sources"]
+    let availableArgs = ["--nocolor", "--timeline", "--timestamps", "-o", "--standard", "--version", "--sources", "--nonetwork"]
     
     init(suppliedArgs: [String]) {
         setArgs(suppliedArgs)
@@ -40,7 +40,7 @@ class ArgManager {
                 sources.toggle()
             } else if arg == "--timeline" {
                 timelineMode.toggle()
-            } else if arg == "--nonet" {
+            } else if arg == "--nonetwork" {
                 network.toggle()
             } else if arg == "--version" {
                 print(version)
