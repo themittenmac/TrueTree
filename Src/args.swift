@@ -64,7 +64,7 @@ class ArgManager {
         print("--timestamps -> Include process timestamps")
         print("--standard -> Print the standard Unix tree instead of TrueTree")
         print("--sources -> Print the source of where each processes parent came from")
-        print("--nonet -> Do not print network connection")
+        print("--nonetwork -> Do not print network connection")
         print("--version -> Print the TrueTree version number")
         print("-o <filename> -> output to file")
         exit(1)
