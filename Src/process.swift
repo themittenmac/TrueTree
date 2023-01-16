@@ -10,12 +10,6 @@ import Foundation
 import ProcLib
 import LaunchdXPC
 
-
-typealias rpidFunc = @convention(c) (CInt) -> CInt
-let MaxPathLen = Int(4 * MAXPATHLEN)
-let InfoSize = Int32(MemoryLayout<proc_bsdinfo>.stride)
-
-
 struct Process {
     let pid: Int
     let ppid: Int
@@ -27,13 +21,16 @@ struct Process {
     let node: Node
     let trueParentPid: Int
     let source: String
+    let network: [NetworkConnection]
 }
 
 
 class ProcessCollector {
     var processes = [Process]()
     let timestampFormat = DateFormatter()
-    
+    let InfoSize = Int32(MemoryLayout<proc_bsdinfo>.stride)
+    let MaxPathLen = Int(4 * MAXPATHLEN)
+    typealias rpidFunc = @convention(c) (CInt) -> CInt
     
     init() {
         timestampFormat.dateFormat = "yyyy-MM-dd HH:mm:ss"
@@ -107,8 +104,12 @@ class ProcessCollector {
                 }
             }
             
+            // Collect network connections
+            let n = NetworkConnections(pid: Int32(pid))
+            let networkConnections = n.connections
+            
             // Create the tree node
-            let node = Node(pid, path: path, timestamp: ts, source: source)
+            let node = Node(pid, path: path, timestamp: ts, source: source, displayString: path)
             
             // Create the process entry
             let p = Process(pid: pid,
@@ -120,7 +121,8 @@ class ProcessCollector {
                             timestamp: ts,
                             node: node,
                             trueParentPid: trueParent,
-                            source: source
+                            source: source,
+                            network: networkConnections
             )
             
             // Add the process to the array of captured processes
@@ -184,8 +186,6 @@ class ProcessCollector {
         
         return nil
     }
-    
-    
 }
 
 extension ProcessCollector {

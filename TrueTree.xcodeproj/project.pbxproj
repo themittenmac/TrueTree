@@ -12,6 +12,7 @@
 		8A78B604238C1FD800DA165C /* node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A78B603238C1FD800DA165C /* node.swift */; };
 		8A78B606238C200E00DA165C /* process.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A78B605238C200E00DA165C /* process.swift */; };
 		8AFE066523FF1D9A0032DA23 /* args.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AFE066423FF1D9A0032DA23 /* args.swift */; };
+		A300C394296FBC8B008FF5F0 /* network.swift in Sources */ = {isa = PBXBuildFile; fileRef = A300C393296FBC8B008FF5F0 /* network.swift */; };
 		A3315741293A6F640075C2C2 /* colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3315740293A6F640075C2C2 /* colors.swift */; };
 /* End PBXBuildFile section */
 
@@ -39,6 +40,7 @@
 		8AB67276239568A70040C141 /* ProcLib.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProcLib.h; sourceTree = "<group>"; };
 		8AE4947F2410244F00E35A32 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		8AFE066423FF1D9A0032DA23 /* args.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = args.swift; sourceTree = "<group>"; };
+		A300C393296FBC8B008FF5F0 /* network.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = network.swift; sourceTree = "<group>"; };
 		A3315740293A6F640075C2C2 /* colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = colors.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -80,6 +82,7 @@
 				8A78B605238C200E00DA165C /* process.swift */,
 				8A78B603238C1FD800DA165C /* node.swift */,
 				A3315740293A6F640075C2C2 /* colors.swift */,
+				A300C393296FBC8B008FF5F0 /* network.swift */,
 			);
 			path = Src;
 			sourceTree = "<group>";
@@ -167,6 +170,7 @@
 				A3315741293A6F640075C2C2 /* colors.swift in Sources */,
 				8A78B6002388928900DA165C /* launchdXPC.m in Sources */,
 				8A78B604238C1FD800DA165C /* node.swift in Sources */,
+				A300C394296FBC8B008FF5F0 /* network.swift in Sources */,
 				8A78B606238C200E00DA165C /* process.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

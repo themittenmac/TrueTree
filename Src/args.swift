@@ -16,6 +16,7 @@ class ArgManager {
     var standardMode = false
     var sources = false
     var timelineMode = true
+    var network = true
     var toFile: String?
     let availableArgs = ["--nocolor", "--timeline", "--timestamps", "-o", "--standard", "--version", "--sources"]
     
@@ -39,6 +40,8 @@ class ArgManager {
                 sources.toggle()
             } else if arg == "--timeline" {
                 timelineMode.toggle()
+            } else if arg == "--nonet" {
+                network.toggle()
             } else if arg == "--version" {
                 print(version)
                 exit(1)
@@ -61,6 +64,7 @@ class ArgManager {
         print("--timestamps -> Include process timestamps")
         print("--standard -> Print the standard Unix tree instead of TrueTree")
         print("--sources -> Print the source of where each processes parent came from")
+        print("--nonet -> Do not print network connection")
         print("--version -> Print the TrueTree version number")
         print("-o <filename> -> output to file")
         exit(1)

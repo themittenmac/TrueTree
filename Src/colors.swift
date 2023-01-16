@@ -23,4 +23,8 @@ extension String {
     var red: String {
         return "\u{001B}[0;31m\(self)\u{001B}[0;0m"
     }
+    
+    var yellow: String {
+        return "\u{001B}[0;33m\(self)\u{001B}[0;0m"
+    }
 }

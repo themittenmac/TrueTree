@@ -8,7 +8,7 @@
 
 import Foundation
 
-let version = 0.5
+let version = 0.6
 
 // Go through command line arguments and set accordingly
 let argManager = ArgManager(suppliedArgs:CommandLine.arguments)
@@ -23,7 +23,6 @@ if (NSUserName() != "root") {
 
 // Build all process objects
 let pc = ProcessCollector()
-
 
 // Get the launchd pid for future reference
 let rootNode = pc.getNodeForPid(1)
@@ -55,9 +54,16 @@ if argManager.timelineMode == false {
 
 // Create a TrueTree
 for proc in pc.processes {
+    
     // Create an on the fly node for a plist if one exists
     if let plist = proc.submittedByPlist {
-        let plistNode = Node(-1, path: plist, timestamp: "00:00:00", source: "launchd_xpc")
+        // Check if this plist is already in the tree
+        if let existingPlistNode = rootNode?.searchPlist(value: plist) {
+            existingPlistNode.add(child: proc.node)
+            continue
+        }
+        
+        let plistNode = Node(-1, path: plist, timestamp: "00:00:00", source: "launchd_xpc", displayString: plist)
         rootNode?.add(child: plistNode)
         plistNode.add(child: proc.node)
         continue
@@ -66,6 +72,23 @@ for proc in pc.processes {
     // Otherwise add the process as a child to its true parent
     let parentNode = pc.getNodeForPid(proc.trueParentPid)
     parentNode?.add(child: proc.node)
+    
+    // Create an on the fly node for any network connections this pid has and add them to itself
+    if argManager.network {
+        for x in proc.network {
+            if let type = x.type {
+                var displayString = ""
+                if type == "TCP" {
+                    displayString = "\(type) - \(x.source):\(x.sourcePort) -> \(x.destination):\(x.destinationPort) - \(x.status)"
+                } else {
+                    displayString = "\(type) - Local Port: \(x.sourcePort)"
+                }
+                
+                let networkNode = Node(-1, path: "none", timestamp: "00:00:00", source: "Network", displayString: displayString)
+                proc.node.add(child: networkNode)
+            }
+        }
+    }
 }
 
 // print the launchd pid and all of it's children
