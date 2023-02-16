@@ -309,11 +309,6 @@
 				"DEVELOPMENT_TEAM[sdk=macosx*]" = C793NB2B2B;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INSTALL_PATH = "";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/../Frameworks",
-				);
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				"OTHER_CODE_SIGN_FLAGS[sdk=*]" = "--timestamp";
 				PRODUCT_BUNDLE_IDENTIFIER = truetree;
@@ -340,11 +335,6 @@
 				"DEVELOPMENT_TEAM[sdk=macosx*]" = C793NB2B2B;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INSTALL_PATH = "";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/../Frameworks",
-				);
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = truetree;

@@ -59,14 +59,14 @@ class ArgManager {
     }
     
     func printHelp() {
-        print("--nocolor -> Do not color code items in output")
-        print("--timeline  -> Sort and print all processes by their creation timestamp (Non-Tree Mode)")
-        print("--timestamps -> Include process timestamps")
-        print("--standard -> Print the standard Unix tree instead of TrueTree")
-        print("--sources -> Print the source of where each processes parent came from")
-        print("--nonetwork -> Do not print network connection")
-        print("--version -> Print the TrueTree version number")
-        print("-o <filename> -> output to file")
+        print("--nocolor        Do not color code items in output")
+        print("--timeline       Sort and print all processes by their creation timestamp (Non-Tree Mode)")
+        print("--timestamps     Include process timestamps")
+        print("--standard       Print the standard Unix tree instead of TrueTree")
+        print("--sources        Print the source of where each processes parent came from")
+        print("--nonetwork      Do not print network connection")
+        print("--version        Print the TrueTree version number")
+        print("-o <filename>    Output to file")
         exit(1)
     }
 }

@@ -15,8 +15,9 @@ let argManager = ArgManager(suppliedArgs:CommandLine.arguments)
 
 
 // Must be root to gather all pid information
-if (NSUserName() != "root") {
-    print("This tool must be run as root in order to view all pid information\nExiting...")
+if (NSUserName() != "root" && setuid(0) != 0) {
+    print("This tool must be run as root in order to view all pid information")
+    print("Exiting...")
     exit(1)
 }
 
