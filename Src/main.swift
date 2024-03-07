@@ -8,7 +8,7 @@
 
 import Foundation
 
-let version = 0.6
+let version = 0.7
 
 // Go through command line arguments and set accordingly
 let argManager = ArgManager(suppliedArgs:CommandLine.arguments)
