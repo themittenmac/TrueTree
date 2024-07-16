@@ -44,7 +44,7 @@ class ArgManager {
                 network.toggle()
             } else if arg == "--version" {
                 print(version)
-                exit(1)
+                exit(0)
             } else if arg == "-o" {
                 if args.count > x+1 && !availableArgs.contains(args[x+1]) {
                     toFile = args[x+1]
