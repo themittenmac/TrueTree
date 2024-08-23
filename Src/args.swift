@@ -17,8 +17,10 @@ class ArgManager {
     var sources = false
     var timelineMode = true
     var network = true
+    var showpid = true
+    var showpath = true
     var toFile: String?
-    let availableArgs = ["--nocolor", "--timeline", "--timestamps", "-o", "--standard", "--version", "--sources", "--nonetwork"]
+    let availableArgs = ["--nocolor", "--timeline", "--timestamps", "-o", "--standard", "--version", "--sources", "--nonetwork", "--nopid", "--nopath"]
     
     init(suppliedArgs: [String]) {
         setArgs(suppliedArgs)
@@ -42,9 +44,13 @@ class ArgManager {
                 timelineMode.toggle()
             } else if arg == "--nonetwork" {
                 network.toggle()
+            } else if arg == "--nopid" {
+                showpid.toggle()
+            } else if arg == "--nopath" {
+                showpath.toggle()
             } else if arg == "--version" {
                 print(version)
-                exit(1)
+                exit(0)
             } else if arg == "-o" {
                 if args.count > x+1 && !availableArgs.contains(args[x+1]) {
                     toFile = args[x+1]
@@ -65,8 +71,10 @@ class ArgManager {
         print("--standard       Print the standard Unix tree instead of TrueTree")
         print("--sources        Print the source of where each processes parent came from")
         print("--nonetwork      Do not print network connection")
+        print("--nopid          Do not print the pid next to each process")
+        print("--nopath         Print process name only instead of full paths")
         print("--version        Print the TrueTree version number")
         print("-o <filename>    Output to file")
-        exit(1)
+        exit(0)
     }
 }

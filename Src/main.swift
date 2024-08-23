@@ -8,7 +8,7 @@
 
 import Foundation
 
-let version = 0.7
+let version = 0.8
 
 // Go through command line arguments and set accordingly
 let argManager = ArgManager(suppliedArgs:CommandLine.arguments)
@@ -43,14 +43,14 @@ if argManager.standardMode {
         parentNode?.add(child: proc.node)
     }
     rootNode?.printTree()
-    exit(1)
+    exit(0)
 }
 
 
 // If timeline mode is active
 if argManager.timelineMode == false {
     pc.printTimeline(outputFile: argManager.toFile)
-    exit(1)
+    exit(0)
 }
 
 // Create a TrueTree
