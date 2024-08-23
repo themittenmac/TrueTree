@@ -31,7 +31,7 @@ int getSubmittedPid(int pid) {
     long long lo = (temp >> 0) & 0x00000000FFFFFFFFLL;
     ProcessSerialNumber parentPSN = {(unsigned long)hi, (unsigned long)lo};
         
-    NSDictionary* parentDict = (__bridge NSDictionary*)ProcessInformationCopyDictionary (&parentPSN, kProcessDictionaryIncludeAllInformationMask);
+    //NSDictionary* parentDict = (__bridge NSDictionary*)ProcessInformationCopyDictionary (&parentPSN, kProcessDictionaryIncludeAllInformationMask);
     //NSLog(@"real parent info: %@", parentDict);
     //NSLog(@"real parent pid: %@", parentDict[@"pid"]);
         

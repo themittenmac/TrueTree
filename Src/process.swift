@@ -84,7 +84,10 @@ class ProcessCollector {
             
             // Get true parent. Plist parents will be handled elsewhere
             let trueParent: Int
-            if submittedPid > 1 {
+            if ppid != 1 {
+                trueParent = ppid
+                source = "parent_process"
+            } else if submittedPid > 1 {
                 trueParent = submittedPid
                 source = "application_services"
             } else if responsiblePid != pid {

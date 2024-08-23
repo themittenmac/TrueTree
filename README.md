@@ -18,6 +18,8 @@ Because of the ever changing features on macOS, since macOS 11 some features don
 --standard -> Print the standard Unix tree instead of TrueTree
 --sources -> Print the source of where each processes parent came from
 --nonetwork -> Do not print network connection
+--nopid -> Do not print the pid next to each process
+--nopath -> Print process name only instead of full paths
 --version -> Print the TrueTree version number
 -o <filename> -> output to file
 

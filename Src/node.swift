@@ -18,6 +18,14 @@ final class Node {
     let displayString: String
     private(set) var children: [Node]
     
+    var fileName: String {
+        if let fileName = path.components(separatedBy: "/").last {
+            return fileName
+        }
+        
+        return path
+    }
+    
     init(_ pid: Int, path: String, timestamp: String, source: String, displayString: String) {
         self.pid = pid
         self.path = path
@@ -59,7 +67,12 @@ extension Node {
             
         } else {
             if argManager.color {
-                text = "\(displayString)    \(String(pid).magenta)"
+                if argManager.showpath {
+                    text = "\(displayString)"
+                } else {
+                    text = "\(fileName)"
+                }
+                if argManager.showpid { text += "    \(String(pid).magenta)"}
                 if argManager.timestamps { text += "    \(timestamp.cyan)"}
                 if argManager.sources { text += "    Aquired parent from -> \(source)".red }
             } else {
