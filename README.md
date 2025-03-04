@@ -11,17 +11,19 @@ TrueTree is more than just a pstree command for macOS. It is used to display a p
 Major Update:
 Because of the ever changing features on macOS, since macOS 11 some features don't operate quite the same as they used to when I wrote the original blog post for TrueTree. Apple has introduced the addition of a new process "runningboardd" which ends up being the true parent of many processes. To get around this TrueTree was updated to use the Application Services framework which allowed for aquiring the true parent in some scenarios. However, this no longer allows for the aquiring of a true parent process if that parent process has terminated. Making it difficult to pinpoint some true parents such as the "open" command. A small price to pay to ensure TrueTree continues to operate across macOS releases. Some other signs of a true parent can often be found inside of the launchctl procinfo output. This might be taken into consideration in the future.
 
-**./TrueTree -h** \
---nocolor -> Do not color code items in output
---timeline  -> Sort and print all processes by their creation timestamp
---timestamps -> Include process timestamps
---standard -> Print the standard Unix tree instead of TrueTree
---sources -> Print the source of where each processes parent came from
---nonetwork -> Do not print network connection
---nopid -> Do not print the pid next to each process
---nopath -> Print process name only instead of full paths
---version -> Print the TrueTree version number
--o <filename> -> output to file
+**./TrueTree -h**
+```
+--nocolor        Do not color code items in output
+--timeline       Sort and print all processes by their creation timestamp (Non-Tree Mode)
+--timestamps     Include process timestamps
+--standard       Print the standard Unix tree instead of TrueTree
+--sources        Print the source of where each processes parent came from
+--nonetwork      Do not print network connection
+--nopid          Do not print the pid next to each process
+--nopath         Print process name only instead of full paths
+--version        Print the TrueTree version number
+-o <filename>    Output to file
+```
 
 <span style="color:blue">Note: Requires Root</span>
 
