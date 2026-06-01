@@ -32,6 +32,19 @@ guard rootNode != nil else {
     exit(1)
 }
 
+// Helper: resolve the subtree root when --filter is supplied
+func resolveFilterRoot(from root: Node) -> Node {
+    guard let filter = argManager.filterParent else { return root }
+    if let pid = Int(filter), let found = root.search(pid: pid) {
+        return found
+    }
+    if let found = root.search(name: filter) {
+        return found
+    }
+    print("No process matching '\(filter)' was found in the tree.")
+    exit(1)
+}
+
 
 // If standard tree mode is active
 if argManager.standardMode {
@@ -42,7 +55,9 @@ if argManager.standardMode {
         // Assign this process as a child
         parentNode?.add(child: proc.node)
     }
-    rootNode?.printTree()
+
+    let printRoot = resolveFilterRoot(from: rootNode!)
+    printRoot.printTree()
     exit(0)
 }
 
@@ -93,5 +108,6 @@ for proc in pc.processes {
 }
 
 // print the launchd pid and all of it's children
-rootNode?.printTree()
+let printRoot = resolveFilterRoot(from: rootNode!)
+printRoot.printTree()
 

@@ -20,7 +20,8 @@ class ArgManager {
     var showpid = true
     var showpath = true
     var toFile: String?
-    let availableArgs = ["--nocolor", "--timeline", "--timestamps", "-o", "--standard", "--version", "--sources", "--nonetwork", "--nopid", "--nopath"]
+    var filterParent: String?
+    let availableArgs = ["--nocolor", "--timeline", "--timestamps", "-o", "--standard", "--version", "--sources", "--nonetwork", "--nopid", "--nopath", "--filter"]
     
     init(suppliedArgs: [String]) {
         setArgs(suppliedArgs)
@@ -57,6 +58,13 @@ class ArgManager {
                 } else {
                     toFile = "tree_output.txt"
                 }
+            } else if arg == "--filter" {
+                if args.count > x+1 && !availableArgs.contains(args[x+1]) {
+                    filterParent = args[x+1]
+                } else {
+                    print("--filter requires a PID or process name argument")
+                    exit(1)
+                }
             } else {
                 print("Unidentified argument " + arg)
                 exit(1)
@@ -75,6 +83,7 @@ class ArgManager {
         print("--nopath         Print process name only instead of full paths")
         print("--version        Print the TrueTree version number")
         print("-o <filename>    Output to file")
+        print("--filter <pid|name>  Show only the subtree rooted at the matching process")
         exit(0)
     }
 }

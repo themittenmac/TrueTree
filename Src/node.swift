@@ -51,6 +51,30 @@ final class Node {
         }
         return nil
     }
+
+    func search(pid: Int) -> Node? {
+        if self.pid == pid {
+            return self
+        }
+        for child in children {
+            if let found = child.search(pid: pid) {
+                return found
+            }
+        }
+        return nil
+    }
+
+    func search(name: String) -> Node? {
+        if fileName.lowercased() == name.lowercased() || path.lowercased().contains(name.lowercased()) {
+            return self
+        }
+        for child in children {
+            if let found = child.search(name: name) {
+                return found
+            }
+        }
+        return nil
+    }
 }
 
 
