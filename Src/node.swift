@@ -74,11 +74,11 @@ extension Node {
                 }
                 if argManager.showpid { text += "    \(String(pid).magenta)"}
                 if argManager.timestamps { text += "    \(timestamp.cyan)"}
-                if argManager.sources { text += "    Aquired parent from -> \(source)".red }
+                if argManager.sources { text += "    Acquired parent from -> \(source)".red }
             } else {
                 text = "\(displayString)    \(String(pid))"
                 if argManager.timestamps { text += "    \(timestamp)"}
-                if argManager.sources { text += "    Aquired parent from -> \(source)" }
+                if argManager.sources { text += "    Acquired parent from -> \(source)" }
             }
             
         }

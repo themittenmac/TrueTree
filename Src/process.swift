@@ -18,6 +18,7 @@ struct Process {
     let submittedByPid: Int?
     let submittedByPlist: String?
     let timestamp: String
+    let startDate: Date
     let node: Node
     let trueParentPid: Int
     let source: String
@@ -30,57 +31,115 @@ class ProcessCollector {
     let timestampFormat = DateFormatter()
     let InfoSize = Int32(MemoryLayout<proc_bsdinfo>.stride)
     let MaxPathLen = Int(4 * MAXPATHLEN)
-    typealias rpidFunc = @convention(c) (CInt) -> CInt
     
-    init() {
+    // When true, only standard pid/ppid relationships are collected.
+    // Responsible pids, submitted pids, launchd plists, and network connections are skipped.
+    let standardMode: Bool
+    
+    // When true, responsible pids come from libquarantine (the default when running as root).
+    // Otherwise they are estimated from resource coalitions, which works without root.
+    let responsibleViaLibquarantine: Bool
+    
+    init(standardMode: Bool = false, responsibleViaLibquarantine: Bool = false) {
+        self.standardMode = standardMode
+        self.responsibleViaLibquarantine = responsibleViaLibquarantine
         timestampFormat.dateFormat = "yyyy-MM-dd HH:mm:ss"
         self.collect()
     }
     
     func collect() {
-        // Inspired by https://gist.github.com/kainjow/0e7650cc797a52261e0f4ba851477c2f
-        
-        // Call proc_listallpids once with nil/0 args to get the current number of pids
-        let initialNumPids = proc_listallpids(nil, 0)
-
-        // Allocate a buffer of these number of pids.
-        // Make sure to deallocate it as this class does not manage memory for us.
-        let buffer = UnsafeMutablePointer<pid_t>.allocate(capacity: Int(initialNumPids))
-        defer {
-            buffer.deallocate()
+        if standardMode {
+            collectStandard()
+        } else {
+            collectFull()
         }
-
-        // Calculate the buffer's total length in bytes
-        let bufferLength = initialNumPids * Int32(MemoryLayout<pid_t>.size)
-
-        // Call the function again with our inputs now ready
-        let numPids = proc_listallpids(buffer, bufferLength)
         
-        // Loop through each pid and build a process struct
-        for i in 0..<numPids {
+        // Sort the processes by time
+        processes = processes.sorted { $0.timestamp < $1.timestamp }
+    }
+    
+    // Standard mode: build pid/ppid relationships from a single sysctl(KERN_PROC_ALL) snapshot.
+    // Unlike proc_pidinfo(PROC_PIDTBSDINFO), this returns ppid and start time for processes
+    // owned by other users, so it works without root.
+    func collectStandard() {
+        for k in getAllKinfoProcs() {
+            let pid = Int(k.kp_proc.p_pid)
+            
+            // Skip for kernel process
+            guard pid != 0 else { continue }
+            
+            let ppid = Int(k.kp_eproc.e_ppid)
+            let path = getPath(pid)
+            
+            let startDate = getStartDate(k)
+            let ts = timestampFormat.string(from: startDate)
+            
+            let node = Node(pid, path: path, timestamp: ts, source: "parent_process", displayString: path)
+            let p = Process(pid: pid,
+                            ppid: ppid,
+                            responsiblePid: pid,
+                            path: path,
+                            submittedByPid: nil,
+                            submittedByPlist: nil,
+                            timestamp: ts,
+                            startDate: startDate,
+                            node: node,
+                            trueParentPid: ppid,
+                            source: "parent_process",
+                            network: []
+            )
+            processes.append(p)
+        }
+    }
+    
+    func getAllKinfoProcs() -> [kinfo_proc] {
+        let procs = ProcessTable.snapshot()
+        if procs.isEmpty { print("Could not read the process table via sysctl") }
+        return procs
+    }
+    
+    // Full TrueTree mode: collect every pid source for correlation.
+    // Parents and start times come from sysctl, so they are correct for every process without root.
+    func collectFull() {
+        let kinfoProcs = getAllKinfoProcs()
+        
+        // Estimate responsible pids from coalitions up front unless libquarantine was requested
+        let coalitionResponsiblePids = responsibleViaLibquarantine ? [:] : Responsibility.viaCoalitions(kinfoProcs)
+        
+        // Loop through each process and build a process struct
+        for k in kinfoProcs {
             // Set the source string for when we locate a true parent
             var source: String = "Unknown"
             
             // Get Pid
-            let pid = Int(buffer[Int(i)])
+            let pid = Int(k.kp_proc.p_pid)
             
             // Skip for kernel process
             guard pid != 0 else { continue }
             
             // Get Parent
-            let ppid = getPPID(pid) ?? 1
-            
-            // Get ResponsiblePid
-            let responsiblePid = getResponsiblePid(pid)
-            
-            // Get SubmittedPid
-            let submittedPid = Int(getSubmittedPid(Int32(pid)))
+            let ppid = Int(k.kp_eproc.e_ppid)
             
             // Get Process Path
             let path = getPath(pid)
             
             // Get Process Timestamp
-            let ts = timestampFormat.string(from: getTimestamp(pid))
+            let startDate = getStartDate(k)
+            let ts = timestampFormat.string(from: startDate)
+            
+            // Get ResponsiblePid
+            let responsiblePid: Int
+            let responsibleSource: String
+            if responsibleViaLibquarantine {
+                responsiblePid = getResponsiblePid(pid)
+                responsibleSource = "responsible_pid"
+            } else {
+                responsiblePid = coalitionResponsiblePids[pid] ?? pid
+                responsibleSource = "responsible_pid (coalition)"
+            }
+            
+            // Get SubmittedPid
+            let submittedPid = Int(getSubmittedPid(Int32(pid)))
             
             // Get true parent. Plist parents will be handled elsewhere
             let trueParent: Int
@@ -92,7 +151,7 @@ class ProcessCollector {
                 source = "application_services"
             } else if responsiblePid != pid {
                 trueParent = responsiblePid
-                source = "responsible_pid"
+                source = responsibleSource
             } else {
                 trueParent = ppid
                 source = "parent_process"
@@ -122,6 +181,7 @@ class ProcessCollector {
                             submittedByPid: submittedPid,
                             submittedByPlist: plistNode ?? nil,
                             timestamp: ts,
+                            startDate: startDate,
                             node: node,
                             trueParentPid: trueParent,
                             source: source,
@@ -132,31 +192,20 @@ class ProcessCollector {
             processes.append(p)
             
         }
-        
-        // Sort the processes by time
-        processes = processes.sorted { $0.timestamp < $1.timestamp }
     }
     
-    func getPPID(_ pidOfInterest:Int) -> Int? {
-        // Call proc_pidinfo and return nil on error
-        let pidInfo = UnsafeMutablePointer<proc_bsdinfo>.allocate(capacity: 1)
-        guard InfoSize == proc_pidinfo(Int32(pidOfInterest), PROC_PIDTBSDINFO, 0, pidInfo, InfoSize) else { return nil }
-        defer { pidInfo.deallocate() }
-        
-        return Int(pidInfo.pointee.pbi_ppid)
+    func getStartDate(_ k: kinfo_proc) -> Date {
+        return Date(timeIntervalSince1970: TimeInterval(ProcessTable.startSeconds(k)))
     }
     
     func getResponsiblePid(_ pidOfInterest:Int) -> Int {
         // Get responsible pid using private Apple API
-        let rpidSym:UnsafeMutableRawPointer! = dlsym(UnsafeMutableRawPointer(bitPattern: -1), "responsibility_get_pid_responsible_for_pid")
-        let responsiblePid = unsafeBitCast(rpidSym, to: rpidFunc.self)(CInt(pidOfInterest))
-        
-        guard responsiblePid != -1 else {
+        guard let responsiblePid = Responsibility.viaLibquarantine(pidOfInterest) else {
             print("Error getting responsible pid for process \(pidOfInterest). Setting to responsible pid to itself")
             return pidOfInterest
         }
         
-        return Int(responsiblePid)
+        return responsiblePid
     }
     
     func getPath(_ pidOfInterest: Int) -> String {
@@ -169,15 +218,6 @@ class ProcessCollector {
         }
         
         return String(cString: pathBuffer)
-    }
-    
-    func getTimestamp(_ pidOfInterest: Int) -> Date {
-        // Call proc_pidinfo and return current date on error
-        let pidInfo = UnsafeMutablePointer<proc_bsdinfo>.allocate(capacity: 1)
-        guard InfoSize == proc_pidinfo(Int32(pidOfInterest), PROC_PIDTBSDINFO, 0, pidInfo, InfoSize) else { return Date() }
-        defer { pidInfo.deallocate() }
-        
-        return Date(timeIntervalSince1970: TimeInterval(pidInfo.pointee.pbi_start_tvsec))
     }
     
     func getNodeForPid(_ pidOfInterest: Int) -> Node? {
@@ -193,17 +233,22 @@ class ProcessCollector {
 
 extension ProcessCollector {
     func printTimeline(outputFile:String?) {
+        var lines = [String]()
         for proc in processes {
             let text = "\(proc.timestamp)   \(proc.path)   \(proc.pid)"
-            if let outputFile = outputFile {
-                let fileUrl = URL(fileURLWithPath: outputFile)
-                do {
-                    try text.write(to: fileUrl, atomically: true, encoding: String.Encoding.utf8)
-                } catch {
-                    print("Could not write TrueTree output to specified file")
-                }
+            lines.append(text)
+            print(text)
+        }
+        
+        // Write the whole timeline once. Writing inside the loop overwrote the file each time,
+        // leaving only the last process in it.
+        if let outputFile = outputFile {
+            let fileUrl = URL(fileURLWithPath: outputFile)
+            do {
+                try (lines.joined(separator: "\n") + "\n").write(to: fileUrl, atomically: true, encoding: String.Encoding.utf8)
+            } catch {
+                print("Could not write TrueTree output to specified file")
             }
-            print("\(proc.timestamp)   \(proc.path)   \(proc.pid)")
         }
     }
 }
