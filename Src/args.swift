@@ -19,8 +19,12 @@ class ArgManager {
     var network = true
     var showpid = true
     var showpath = true
+    var responsibleViaCoalition = false
     var toFile: String?
-    let availableArgs = ["--nocolor", "--timeline", "--timestamps", "-o", "--standard", "--version", "--sources", "--nonetwork", "--nopid", "--nopath"]
+    var json = false
+    // True when -o was given without a filename, so the default name can follow the output format
+    private var toFileDefaulted = false
+    let availableArgs = ["--nocolor", "--timeline", "--timestamps", "-o", "--standard", "--version", "--sources", "--nonetwork", "--nopid", "--nopath", "--acquire-responsible-via-coalition", "--json"]
     
     init(suppliedArgs: [String]) {
         setArgs(suppliedArgs)
@@ -48,6 +52,10 @@ class ArgManager {
                 showpid.toggle()
             } else if arg == "--nopath" {
                 showpath.toggle()
+            } else if arg == "--acquire-responsible-via-coalition" {
+                responsibleViaCoalition.toggle()
+            } else if arg == "--json" {
+                json.toggle()
             } else if arg == "--version" {
                 print(version)
                 exit(0)
@@ -56,11 +64,16 @@ class ArgManager {
                     toFile = args[x+1]
                 } else {
                     toFile = "tree_output.txt"
+                    toFileDefaulted = true
                 }
             } else {
                 print("Unidentified argument " + arg)
                 exit(1)
             }
+        }
+        
+        if json && toFileDefaulted {
+            toFile = "tree_output.json"
         }
     }
     
@@ -73,6 +86,10 @@ class ArgManager {
         print("--nonetwork      Do not print network connection")
         print("--nopid          Do not print the pid next to each process")
         print("--nopath         Print process name only instead of full paths")
+        print("--acquire-responsible-via-coalition")
+        print("                 Estimate responsible pids from process coalitions instead of libquarantine.")
+        print("                 Coalitions are always used when not running as root.")
+        print("--json           Output JSON instead of text (works with --standard, --timeline, and -o)")
         print("--version        Print the TrueTree version number")
         print("-o <filename>    Output to file")
         exit(0)

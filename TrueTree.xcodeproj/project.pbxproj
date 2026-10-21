@@ -14,6 +14,12 @@
 		8AFE066523FF1D9A0032DA23 /* args.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AFE066423FF1D9A0032DA23 /* args.swift */; };
 		A300C394296FBC8B008FF5F0 /* network.swift in Sources */ = {isa = PBXBuildFile; fileRef = A300C393296FBC8B008FF5F0 /* network.swift */; };
 		A3315741293A6F640075C2C2 /* colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3315740293A6F640075C2C2 /* colors.swift */; };
+		A4C0FFEE0000000000000002 /* responsibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4C0FFEE0000000000000001 /* responsibility.swift */; };
+		A4C0FFEE0000000000000003 /* responsibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4C0FFEE0000000000000001 /* responsibility.swift */; };
+		A4C0FFEE0000000000000005 /* PrivateAPITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4C0FFEE0000000000000004 /* PrivateAPITests.swift */; };
+		A4C0FFEE0000000000000011 /* SubmittedPidTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4C0FFEE0000000000000010 /* SubmittedPidTests.swift */; };
+		A4C0FFEE0000000000000012 /* launchdXPC.m in Sources */ = {isa = PBXBuildFile; fileRef = 8A78B5FF2388928900DA165C /* launchdXPC.m */; };
+		A4C0FFEE0000000000000021 /* json.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4C0FFEE0000000000000020 /* json.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -42,10 +48,22 @@
 		8AFE066423FF1D9A0032DA23 /* args.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = args.swift; sourceTree = "<group>"; };
 		A300C393296FBC8B008FF5F0 /* network.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = network.swift; sourceTree = "<group>"; };
 		A3315740293A6F640075C2C2 /* colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = colors.swift; sourceTree = "<group>"; };
+		A4C0FFEE0000000000000001 /* responsibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = responsibility.swift; sourceTree = "<group>"; };
+		A4C0FFEE0000000000000004 /* PrivateAPITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivateAPITests.swift; sourceTree = "<group>"; };
+		A4C0FFEE0000000000000006 /* TrueTreeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TrueTreeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A4C0FFEE0000000000000010 /* SubmittedPidTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubmittedPidTests.swift; sourceTree = "<group>"; };
+		A4C0FFEE0000000000000020 /* json.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = json.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		8A78B5F02388924B00DA165C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A4C0FFEE000000000000000B /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -60,6 +78,7 @@
 			children = (
 				8AE4947F2410244F00E35A32 /* README.md */,
 				8A78B5F52388924B00DA165C /* Src */,
+				A4C0FFEE0000000000000007 /* Tests */,
 				8A78B5F42388924B00DA165C /* Products */,
 			);
 			sourceTree = "<group>";
@@ -68,6 +87,7 @@
 			isa = PBXGroup;
 			children = (
 				8A78B5F32388924B00DA165C /* TrueTree */,
+				A4C0FFEE0000000000000006 /* TrueTreeTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -81,8 +101,10 @@
 				8A78B5F62388924B00DA165C /* main.swift */,
 				8A78B605238C200E00DA165C /* process.swift */,
 				8A78B603238C1FD800DA165C /* node.swift */,
+				A4C0FFEE0000000000000020 /* json.swift */,
 				A3315740293A6F640075C2C2 /* colors.swift */,
 				A300C393296FBC8B008FF5F0 /* network.swift */,
+				A4C0FFEE0000000000000001 /* responsibility.swift */,
 			);
 			path = Src;
 			sourceTree = "<group>";
@@ -106,6 +128,23 @@
 			path = ProcLib;
 			sourceTree = "<group>";
 		};
+		A4C0FFEE0000000000000007 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				A4C0FFEE0000000000000008 /* TrueTreeTests */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		A4C0FFEE0000000000000008 /* TrueTreeTests */ = {
+			isa = PBXGroup;
+			children = (
+				A4C0FFEE0000000000000004 /* PrivateAPITests.swift */,
+				A4C0FFEE0000000000000010 /* SubmittedPidTests.swift */,
+			);
+			path = TrueTreeTests;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -126,6 +165,23 @@
 			productReference = 8A78B5F32388924B00DA165C /* TrueTree */;
 			productType = "com.apple.product-type.tool";
 		};
+		A4C0FFEE0000000000000009 /* TrueTreeTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A4C0FFEE000000000000000D /* Build configuration list for PBXNativeTarget "TrueTreeTests" */;
+			buildPhases = (
+				A4C0FFEE000000000000000A /* Sources */,
+				A4C0FFEE000000000000000B /* Frameworks */,
+				A4C0FFEE000000000000000C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TrueTreeTests;
+			productName = TrueTreeTests;
+			productReference = A4C0FFEE0000000000000006 /* TrueTreeTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -139,6 +195,9 @@
 					8A78B5F22388924B00DA165C = {
 						CreatedOnToolsVersion = 11.0;
 						LastSwiftMigration = 1100;
+					};
+					A4C0FFEE0000000000000009 = {
+						CreatedOnToolsVersion = 26.2;
 					};
 				};
 			};
@@ -156,9 +215,20 @@
 			projectRoot = "";
 			targets = (
 				8A78B5F22388924B00DA165C /* TrueTree */,
+				A4C0FFEE0000000000000009 /* TrueTreeTests */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A4C0FFEE000000000000000C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		8A78B5EF2388924B00DA165C /* Sources */ = {
@@ -170,8 +240,23 @@
 				A3315741293A6F640075C2C2 /* colors.swift in Sources */,
 				8A78B6002388928900DA165C /* launchdXPC.m in Sources */,
 				8A78B604238C1FD800DA165C /* node.swift in Sources */,
+				A4C0FFEE0000000000000021 /* json.swift in Sources */,
 				A300C394296FBC8B008FF5F0 /* network.swift in Sources */,
 				8A78B606238C200E00DA165C /* process.swift in Sources */,
+				A4C0FFEE0000000000000002 /* responsibility.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A4C0FFEE000000000000000A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A4C0FFEE0000000000000003 /* responsibility.swift in Sources */,
+				A4C0FFEE0000000000000005 /* PrivateAPITests.swift in Sources */,
+				A4C0FFEE0000000000000011 /* SubmittedPidTests.swift in Sources */,
+				A4C0FFEE0000000000000012 /* launchdXPC.m in Sources */,
+				A4C0FFEE0000000000000011 /* SubmittedPidTests.swift in Sources */,
+				A4C0FFEE0000000000000012 /* launchdXPC.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -347,6 +432,43 @@
 			};
 			name = Release;
 		};
+		A4C0FFEE000000000000000E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				PRODUCT_BUNDLE_IDENTIFIER = truetree.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/Src/launchdXPC";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		A4C0FFEE000000000000000F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				PRODUCT_BUNDLE_IDENTIFIER = truetree.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/Src/launchdXPC";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -364,6 +486,15 @@
 			buildConfigurations = (
 				8A78B5FB2388924B00DA165C /* Debug */,
 				8A78B5FC2388924B00DA165C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A4C0FFEE000000000000000D /* Build configuration list for PBXNativeTarget "TrueTreeTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A4C0FFEE000000000000000E /* Debug */,
+				A4C0FFEE000000000000000F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

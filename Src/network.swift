@@ -32,11 +32,19 @@ class NetworkConnections {
         
         // get the size of the number of open files
         let size = proc_pidinfo(pid, PROC_PIDLISTFDS, 0, nil , 0)
+        
+        // Returns 0 when access is denied (e.g. another user's process when not root)
+        guard size > 0 else { return }
 
         //get list of open file descriptors
-        let fdInfo = UnsafeMutablePointer<proc_fdinfo>.allocate(capacity: Int(size))
+        let fdCapacity = Int(size / PROC_PIDLISTFD_SIZE)
+        guard fdCapacity > 0 else { return }
+        let fdInfo = UnsafeMutablePointer<proc_fdinfo>.allocate(capacity: fdCapacity)
         defer { fdInfo.deallocate() }
-        buildConnections(fdInfo, size)
+        
+        // Pass the size of the buffer actually allocated, not the size the kernel reported,
+        // so proc_pidinfo can never write past the end of fdInfo
+        buildConnections(fdInfo, Int32(fdCapacity) * PROC_PIDLISTFD_SIZE)
     }
     
     private func getSocketFamily(socketInfoBuffer: UnsafeMutablePointer<socket_fdinfo>) -> String? {
@@ -156,10 +164,12 @@ class NetworkConnections {
     }
     
     private func buildConnections(_ fdInfo: UnsafeMutablePointer<proc_fdinfo>, _ size: Int32) {
-        proc_pidinfo(self.pid, PROC_PIDLISTFDS, 0, fdInfo, size)
+        // Use the byte count actually returned; fds can close between the size query and this call
+        let bytesReturned = proc_pidinfo(self.pid, PROC_PIDLISTFDS, 0, fdInfo, size)
+        guard bytesReturned > 0 else { return }
         
         // Go through each open file descriptor
-        for x in 0...Int(size/PROC_PIDLISTFD_SIZE) {
+        for x in 0..<Int(bytesReturned/PROC_PIDLISTFD_SIZE) {
             var localPort = UInt16(0)
             var destinationPort = UInt16(0)
             var destination = ""
@@ -176,11 +186,11 @@ class NetworkConnections {
                 continue
             }
             
-            // Get IPv4 or IPV6
-            guard let family = getSocketFamily(socketInfoBuffer: socketInfo) else { return }
+            // Get IPv4 or IPV6. Skip other socket families (e.g. Unix domain sockets) but keep checking the remaining fds
+            guard let family = getSocketFamily(socketInfoBuffer: socketInfo) else { continue }
             
-            // Get UDP or TCP
-            guard let type = getType(socketInfoBuffer: socketInfo) else { return }
+            // Get UDP or TCP. Skip other socket kinds but keep checking the remaining fds
+            guard let type = getType(socketInfoBuffer: socketInfo) else { continue }
             
             // If this is a UDP connection
             if type == "UDP" {
@@ -202,7 +212,8 @@ class NetworkConnections {
                 }
             }
             
-            let status = getStatus(socketInfoBuffer: socketInfo)
+            // TCP state only exists for TCP sockets. For UDP this part of the union holds unrelated data.
+            let status = type == "TCP" ? getStatus(socketInfoBuffer: socketInfo) : ""
             
             let n = NetworkConnection(type: type,
                                       pid: Int(pid),
